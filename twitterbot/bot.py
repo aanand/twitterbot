@@ -337,7 +337,7 @@ class TwitterBot:
         try:
             self.state['new_followers'] = [f_id for f_id in self.api.followers_ids(self.id) if f_id not in self.state['followers']]
 
-            self.config['last_follow_check'] = time.time()
+            self.state['last_follow_check'] = time.time()
 
         except tweepy.TweepError as e:
             self._log_tweepy_error('Can\'t update followers', e)
