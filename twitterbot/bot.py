@@ -121,7 +121,7 @@ class TwitterBot:
             code = e.message[0]['code']
             self.log("{}: {} ({})".format(message, e_message, code), level=logging.ERROR)
         except:
-            self.log(message, e)
+            self.log("{}: {}".format(message, e), level=logging.ERROR)
 
 
     def _tweet_url(self, tweet):
