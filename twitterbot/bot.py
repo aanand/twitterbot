@@ -422,6 +422,8 @@ class FileStorage(object):
 
     Adapters must implement two methods: read(name) and write(name).
     """
+    def __init__(self, base_dir='.'):
+        self.base_dir = base_dir
 
 
     def read(self, name):
@@ -450,4 +452,4 @@ class FileStorage(object):
 
 
     def _get_filename(self, name):
-        return '{}_state.pkl'.format(name)
+        return os.path.join(self.base_dir, '{}_state.pkl'.format(name))
