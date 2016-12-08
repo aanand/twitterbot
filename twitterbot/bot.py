@@ -180,10 +180,9 @@ class TwitterBot:
         kwargs = {}
         args = [text]
         if media is not None:
-            cmd = self.api.update_with_media
-            args.insert(0, media)
-        else:
-            cmd = self.api.update_status
+            self.log("-- Uploading {}".format(media))
+            media = self.api.media_upload(media)
+            kwargs["media_ids"] = [media.media_id_string]
 
         try:
             self.log('Tweeting "{}"'.format(text))
@@ -193,7 +192,7 @@ class TwitterBot:
             else:
                 self.log("-- Posting to own timeline")
 
-            tweet = cmd(*args, **kwargs)
+            tweet = self.api.update_status(*args, **kwargs)
             self.log('Status posted at {}'.format(self._tweet_url(tweet)))
             return True
 
