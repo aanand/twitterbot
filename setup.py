@@ -1,4 +1,8 @@
-from distutils.core import setup
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from setuptools import setup
 
 setup(
     name='twitterbot',
