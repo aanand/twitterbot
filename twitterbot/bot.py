@@ -78,8 +78,8 @@ class TwitterBot:
                 self.state = pickle.load(f)
 
         except IOError:
-            self.state['last_timeline_id'] = 1
-            self.state['last_mention_id'] = 1
+            self.state['last_timeline_id'] = 0
+            self.state['last_mention_id'] = 0
 
             self.state['last_timeline_time'] = 0
             self.state['last_mention_time'] = 0
@@ -268,6 +268,16 @@ class TwitterBot:
             return
 
         try:
+            # If we don't have a last_mention_id, then the bot is starting from
+            # scratch. Ignore all past mentions, to avoid spamming with duplicates
+            # in the case where the bot's saved state was lost.
+            if not self.state['last_mention_id']:
+                latest = self.api.mentions_timeline(count=1)
+                if latest:
+                    self.log('Initializing last_mention_id to {}'.format(latest[0].id))
+                    self.state['last_mention_id'] = latest[0].id
+                return
+
             current_mentions = self.api.mentions_timeline(since_id=self.state['last_mention_id'], count=100)
 
             # if i've somehow managed to mention myself, ignore it
@@ -302,6 +312,16 @@ class TwitterBot:
             return
 
         try:
+            # If we don't have a last_timeline_id, then the bot is starting from
+            # scratch. Ignore all past timeline tweets, to avoid spamming with duplicates
+            # in the case where the bot's saved state was lost.
+            if not self.state['last_timeline_id']:
+                latest = self.api.home_timeline(count=1)
+                if latest:
+                    self.log('Initializing last_timeline_id to {}'.format(latest[0].id))
+                    self.state['last_timeline_id'] = latest[0].id
+                return
+
             current_timeline = self.api.home_timeline(count=200, since_id=self.state['last_timeline_id'])
 
             # remove my tweets
