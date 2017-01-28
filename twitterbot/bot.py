@@ -164,17 +164,30 @@ class TwitterBot:
         Perform some action when followed.
         """
         if self.config['autofollow']:
-            try:
-                self.api.create_friendship(f_id, follow=True)
-                self.state['friends'].append(f_id)
-                logging.info('Followed user id {}'.format(f_id))
-            except tweepy.TweepError as e:
-                self._log_tweepy_error('Unable to follow user', e)
+            max_following = self.config.get('autofollow_max_following', 0)
+            if max_following:
+                user = self.api.get_user(f_id)
+                if user.friends_count > max_following:
+                    self.log(
+                        "@{} is following too many people ({} > {}) - not following"
+                        .format(user.screen_name, user.friends_count, max_following)
+                    )
+                else:
+                    self.follow(f_id)
+            else:
+                self.follow(f_id)
 
             time.sleep(3)
 
         self.state['followers'].append(f_id)
 
+    def follow(self, f_id):
+        try:
+            self.api.create_friendship(f_id, follow=True)
+            self.state['friends'].append(f_id)
+            logging.info('Followed user id {}'.format(f_id))
+        except tweepy.TweepError as e:
+            self._log_tweepy_error('Unable to follow user', e)
 
     def post_tweet(self, text, reply_to=None, media=None):
         kwargs = {}
